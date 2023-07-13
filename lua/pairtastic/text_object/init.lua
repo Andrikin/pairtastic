@@ -1,14 +1,10 @@
-local object = {}
-local vim = vim.fn
+-- Objeto texto: o que ele representa?
+-- R: O conjunto inteiro de um bloco onde o início é o char alvo do pareamento,
+-- e o final é o char que fecha o pareamento.
 
--- falsy value
-function object.c_mode()
-	local c = vim.getcmdtype()
-	if c == '' then
-		return nil
-	end
-	return c
-end
+local object = {}
+-- local fn = vim.fn
+local utils = require('pairtastic.utils')
 
 function object.is_comment()
 	return false
@@ -28,19 +24,22 @@ function object.get_string()
 	return ''
 end
 
+local _metadata = {
+	mode = utils.mode(),
+	text = object.get_string(),
+	is_comment = object.is_comment(),
+	char_before = object.c_before(),
+	char_after = object.c_after(),
+	_start = 0,
+	_end = 0,
+	_column = 0,
+	_line = 0,
+}
+_metadata.line = utils.get_line_text(_metadata.mode)
+
 -- Retorna todas as propriedades do objeto-texto
 function object.get()
-	local text = {
-		mode = object.c_mode() or vim.mode(),
-		text = object.get_string(),
-		char_before = object.c_before(),
-		char_after = object.c_after(),
-		_start = 0,
-		_end = 0,
-		_column = 0,
-		_line = 0,
-	}
-	return text
+	return _metadata
 end
 
 return object
