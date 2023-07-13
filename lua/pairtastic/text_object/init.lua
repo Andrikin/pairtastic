@@ -1,20 +1,31 @@
 local object = {}
 local vim = vim.fn
 
+-- falsy value
 function object.c_mode()
-	return vim.getcmdtype()
+	local c = vim.getcmdtype()
+	if c == '' then
+		return nil
+	end
+	return c
 end
 
 function object.is_comment()
+	return false
 end
 
 function object.c_before()
+	local c = ''
+	return c
 end
 
 function object.c_after()
+	local c = ''
+	return c
 end
 
 function object.get_string()
+	return ''
 end
 
 -- Retorna todas as propriedades do objeto-texto
