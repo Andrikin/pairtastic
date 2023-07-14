@@ -4,21 +4,6 @@ local fn = vim.fn
 
 local buf = fn.getbufinfo()[1].bufnr
 
-function utils.get_vtext()
-	local text = ''
-	return text
-end
-
-function utils.get_line_text(mode)
-	local line = nil
-	if mode == 'c' then
-		line = fn.getcmdline()
-	else
-		line = fn.getline('.')
-	end
-	return line
-end
-
 -- falsy value
 function utils.c_mode()
 	local c = fn.getcmdtype()
