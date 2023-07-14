@@ -7,16 +7,49 @@ local object = {}
 local fn = vim.fn
 local utils = require('pairtastic.utils')
 
-local _metadata = {
-	cursor = {_cursor[2], _cursor[3]},
-	mode = utils.mode(),
-	l_start = 0,
-	l_end = 0,
-	l_column = 0,
-	l_line = 0,
+-- Another pontuation mark will be 
+-- TODO: Make index point to opposite char
+local char2number = {
+	[91] = {
+		opposite = 93
+	},
+	[93] = {
+		opposite = 91
+	},
+	[40] = {
+		opposite = 41
+	},
+	[41] = {
+		opposite = 40
+	},
+	[123] = {
+		opposite = 125
+	},
+	[125] = {
+		opposite = 123
+	},
+	[34] = {
+		opposite = 34
+	},
+	[39] = {
+		opposite = 39
+	},
+	[60] = {
+		opposite = 60
+	}
 }
 
+local _metadata = {
+	mode = utils.mode(),
+	begin = 0,
+	last = 0,
+	col = 0,
+	line = 0,
+}
+
+-- Set cursor position
 local _cursor = nil
+local _boundaires = nil
 _metadata.cursor = nil
 if _metadata.mode == 'c' then
 	_cursor = fn.getcmdpos()
@@ -36,13 +69,12 @@ function object.is_comment()
 	return false
 end
 
--- TODO: Obter conforme modo: CommandMode ou InsertMode
 function object.get_char_before()
 	local line = ''
 	local char = ''
 	if _metadata.mode == 'c' then
 		line = fn.getcmdline()
-		if #line == 0 then return '' end
+		if #line == 0 then return char end
 		char = string.sub(line, _cursor.col - 2, _cursor.col - 2)
 	elseif _metadata.mode == 'i' then
 		line = fn.getline(_cursor[1])
@@ -51,10 +83,17 @@ function object.get_char_before()
 	return char
 end
 
--- TODO: Obter conforme modo: CommandMode ou InsertMode
 function object.get_char_after()
-	local line = fn.getline(_cursor[1])
-	local char = string.sub(line, _cursor[2] + 1, _cursor[2] + 1)
+	local line = ''
+	local char = ''
+	if _metadata.mode == 'c' then
+		line = fn.getcmdline()
+		if #line == 0 then return char end
+		char = string.sub(line, _cursor.col + 2, _cursor.col + 2)
+	elseif _metadata.mode == 'i' then
+		line = fn.getline(_cursor[1])
+		char = string.sub(line, _cursor.col + 1, _cursor.col + 1)
+	end
 	return char
 end
 
@@ -71,16 +110,39 @@ end
 -- WIP
 function object.get_string_text()
 	return string.sub(
-		fn.getline(_metadata.l_start, _metadata.l_end),
+		fn.getline(_metadata.begin, _metadata.last),
 		1,
 		1
 	)
 end
 
-_metadata.line = object.get_line_text()
+-- Set boundaries for text object when incomplete pair
+function object.get_boundaries(key)
+	local begin = nil
+	local last = nil
+	if _metadata.mode == 'c' then
+		-- use regex to find key and others pattern
+	elseif _metadata.mode == 'i' then
+		local opposite = 0
+		local b1 = fn.searchpos(key, 'nbW')
+		-- opposite char of key
+		local b2 = fn.searchpairpos(key, key .. '|' .. key, key, 'nbW')
+		if b1[1] == b2[1] and b1[2] == b2[2] then
+			begin = b1
+			last = fn.searchpos(key, 'nW')
+		end
+	end
+	return {
+		-- returning coordinates {line, col}
+		begin = begin,
+		last = last,
+	}
+end
 
 -- Retorna todas as propriedades do objeto-texto
-function object.get()
+function object.get(key)
+	_metadata.boundary = object.get_boundaries(key)
+	_metadata.line = object.get_line_text()
 	return _metadata
 end
 
