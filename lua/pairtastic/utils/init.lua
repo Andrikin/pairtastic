@@ -1,5 +1,8 @@
 local utils = {}
+
 local fn = vim.fn
+
+local buf = fn.getbufinfo()[1].bufnr
 
 function utils.get_vtext()
 	local text = ''
