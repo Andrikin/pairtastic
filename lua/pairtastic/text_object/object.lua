@@ -37,6 +37,25 @@ function object.is_comment()
 	return false
 end
 
+-- WIP
+function object.is_substitute_command()
+	local is = false
+	if _metadata.mode == 'c' then
+		return is
+	end
+	-- In CommandMode
+	local line = object.get_line_text()
+	local with_number_range = "^[-+]?%d+,[-+]?%d+"
+	local with_mark_range = "^[]"
+	local with_char_range = "^[%.%$%%]"
+	local with_pattern_range = "^[/%?].[/%?]?" -- Make more specific
+	local substitute_command = "s(ubstitute)"
+	if string.find('', '') then
+		is = true
+	end
+	return is
+end
+
 function object.get_char_before()
 	local line = ''
 	local char = ''
